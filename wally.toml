@@ -8,3 +8,6 @@ realm = "shared"
 registry = "https://github.com/UpliftGames/wally-index"
 exclude = ["**"]
 include = ["lib", "lib/*", "default.project.json", "wally.toml", "wally.lock"]
+
+[dev-dependencies]
+TestEZ = "roblox/testez@0.4.1"
