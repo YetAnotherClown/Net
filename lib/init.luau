@@ -141,26 +141,22 @@ type QueryParams = {
 
 -- Query different Parameter Types
 local parseQueryParams = {
-	Instance = function(queryParams: QueryParams, player: Player)
+	Instance = function(queryParams: QueryParams, player: Player, configuration: Configuration)
 		-- Player should be a Player
-		if typeof(player) ~= "Instance" then
-			return
-		elseif not player:IsA("Player") then
+		if not Context.isPlayer(configuration, player) then
 			return
 		end
 
 		table.insert(queryParams.senders, player)
 	end,
 
-	table = function(queryParams: QueryParams, players: { Player })
+	table = function(queryParams: QueryParams, players: { Player }, configuration: Configuration)
 		queryParams.multipleSenders = true
 
 		for _, player in players do
 			-- Player should be a Player
-			if typeof(player) ~= "Instance" then
-				continue
-			elseif not player:IsA("Player") then
-				continue
+			if not Context.isPlayer(configuration, player) then
+				return
 			end
 
 			table.insert(queryParams.senders, player)
@@ -198,7 +194,7 @@ function Net:query(...: { Players } | Player | Identifier | any)
 	-- Parse each appropriate Parameter Type
 	for _, param in { ... } do
 		local parser = parseQueryParams[typeof(param)]
-		parser(queryParams, param)
+		parser(queryParams, param, self._configuration)
 	end
 
 	-- Build the iterator function with Filters
@@ -267,15 +263,13 @@ type SendParams = {
 
 -- Send different Parameter Types
 local parseSendParams = {
-	Instance = function(sendParams: SendParams, player: Player)
+	Instance = function(sendParams: SendParams, player: Player, configuration: Configuration)
 		-- Player should be a Player
-		if typeof(player) ~= "Instance" then
-			return
-		elseif not player:IsA("Player") then
+		if not Context.isPlayer(configuration, player) then
 			return
 		end
 
-		if typeof(sendParams.recipient) == "Instance" then
+		if sendParams.recipient and typeof(sendParams.recipient) ~= "table" then
 			-- Combine both Players into a table
 			sendParams.recipient = { sendParams.recipient, player }
 		elseif typeof(sendParams.recipient) == "table" then
@@ -287,17 +281,17 @@ local parseSendParams = {
 		end
 	end,
 
-	table = function(sendParams: SendParams, players: { Player })
+	table = function(sendParams: SendParams, players: { Player }, configuration: Configuration)
+		assert(sendParams.recipient ~= "NET_SERVER", "Recipient can never be NET_SERVER")
+
 		-- Each Player should be a Player
 		for _, player in players do
-			if typeof(player) ~= "Instance" then
-				return
-			elseif not player:IsA("Player") then
+			if not Context.isPlayer(configuration, player) then
 				return
 			end
 		end
 
-		if typeof(sendParams.recipient) == "Instance" then
+		if sendParams.recipient and typeof(sendParams.recipient) ~= "table" then
 			-- Add the player to the new table, then set that table as the recipient
 			table.insert(players, sendParams.recipient)
 			sendParams.recipient = players
@@ -349,7 +343,7 @@ function Net:send(...)
 
 		-- Parse the SendParams
 		local parser = parseSendParams[typeof(param)]
-		parser(sendParams, param)
+		parser(sendParams, param, self._configuration)
 	end
 
 	-- Fill in recipient for the Client

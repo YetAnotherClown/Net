@@ -21,7 +21,17 @@ local function isClient(configuration)
 	return configuration.RunContext == "Client"
 end
 
+local function isPlayer(configuration, player)
+	if configuration.DevMode then
+		return typeof(player) == "table" and player._type == "MockPlayer"
+	else
+        return typeof(player) == "Instance" and player:IsA("Player")
+	end
+end
+
 return {
 	isServer = isServer,
 	isClient = isClient,
+
+    isPlayer = isPlayer,
 }
