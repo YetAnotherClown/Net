@@ -11,3 +11,4 @@ include = ["lib", "lib/*", "default.project.json", "wally.toml", "wally.lock"]
 
 [dev-dependencies]
 TestEZ = "roblox/testez@0.4.1"
+Signal = "sleitnick/signal@1.5.0"
