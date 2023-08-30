@@ -1,0 +1,24 @@
+{
+  "name": "Net",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Packages": {
+        "$className": "Folder",
+        "Net": {
+          "$path": "lib"
+        }
+      },
+      "DevPackages": {
+        "$path": "DevPackages"
+      }
+    },
+
+    "ServerScriptService": {
+      "server": {
+        "$path": "tests/unit-tests.server.luau"
+      }
+    }
+  }
+}
