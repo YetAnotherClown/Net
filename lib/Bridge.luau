@@ -1,4 +1,4 @@
-local RunService = game:GetService("RunService")
+local Context = require(script.Parent.Context)
 
 --[=[
     @class Bridge
@@ -150,9 +150,9 @@ function Bridge:_processOutgoingQueue()
 	end
 
 	-- Send the Payload over the RemoteEvent
-	if RunService:IsClient() then
+	if Context.isClient(self._configuration) then
 		self.remote:FireServer(serverPayload)
-	elseif RunService:IsServer() then
+	elseif Context.isServer(self._configuration) then
 		for player, payload in clientPayloads do
 			self.remote:FireClient(player, payload)
 		end
@@ -235,13 +235,13 @@ end
 ]=]
 function Bridge:send(recipient, identifier, data)
 	-- Typecheck recipients
-	if RunService:IsClient() then
+	if Context.isClient(self._configuration) then
 		if recipient ~= "NET_SERVER" then
 			warn("Clients can only send to Net.Server")
 
 			return
 		end
-	elseif RunService:IsServer() then
+	elseif Context.isServer(self._configuration) then
 		if typeof(recipient) == "table" then
 			for _, player in recipient do
 				if typeof(player) ~= "Instance" or (typeof(player) == "Instance" and not player:IsA("Player")) then
@@ -282,17 +282,21 @@ function Bridge.new(configuration: { any }?)
 
 	local remoteKey = channel .. "@" .. event
 
-	if RunService:IsServer() then
-		self.remote = script:FindFirstChild(remoteKey) or Instance.new("RemoteEvent")
-		self.remote.Name = remoteKey
-		self.remote.Parent = script
+	if Context.isServer(self._configuration) then
+		if self._configuration.MockRemoteEvent then
+			self.remote = self._configuration.MockRemoteEvent
+		else
+			self.remote = script:FindFirstChild(remoteKey) or Instance.new("RemoteEvent")
+			self.remote.Name = remoteKey
+			self.remote.Parent = script
+		end
 
 		local function processIncoming(player, package)
 			self:_processIncoming(player, package)
 		end
 
 		self.remote.OnServerEvent:Connect(processIncoming)
-	elseif RunService:IsClient() then
+	elseif Context.isClient(self._configuration) then
 		self.remote = script:WaitForChild(remoteKey)
 
 		local function processIncoming(package)

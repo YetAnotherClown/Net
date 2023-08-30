@@ -1,10 +1,10 @@
-local RunService = game:GetService("RunService")
-
 local Bridge = require(script.Bridge)
 export type Bridge = Bridge.Bridge
 
 local Identifier = require(script.Identifier)
 export type Identifier = Identifier.Identifier
+
+local Context = require(script.Context)
 
 --[=[
 	@interface Configuration
@@ -39,6 +39,10 @@ type Configuration = {
 	Event: string?,
 	Middleware: ((any) -> any)?,
 	Ratelimit: number?,
+
+	DevMode: boolean?;
+	MockRemoteEvent: any?;
+	RunContext: ("Client" | "Server")?,
 }
 
 --[=[
@@ -187,7 +191,7 @@ function Net:query(...: { Players } | Player | Identifier | any)
 	local iter = self:__iter(function(_, v)
 		-- Filter Sender
 		if
-			not RunService:IsClient()
+			not Context.isClient(self._configuration)
 			and not queryParams.multipleSenders
 			and v.sender
 			and not table.find(queryParams.senders, v.sender)
@@ -220,7 +224,7 @@ function Net:query(...: { Players } | Player | Identifier | any)
         ]]
 
 		-- If not already known, return the sender
-		if queryParams.multipleSenders or #queryParams.senders ~= 1 and not (RunService:IsClient() and #queryParams.senders == 0) then
+		if queryParams.multipleSenders or #queryParams.senders ~= 1 and not (Context.isClient(self._configuration) and #queryParams.senders == 0) then
 			table.insert(package, sender)
 		end
 
@@ -335,7 +339,7 @@ function Net:send(...)
 	end
 
 	-- Fill in recipient for the Client
-	if RunService:IsClient() then
+	if Context.isClient(self._configuration) then
 		sendParams.recipient = "NET_SERVER"
 	end
 
