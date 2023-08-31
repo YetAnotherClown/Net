@@ -138,11 +138,14 @@ function Bridge:_processOutgoingQueue()
 			}
 		}
 	do
-		if typeof(packet.recipient) == "table" then
+		if Context.getType(packet.recipient, self._configuration) == "table" then
 			for _, player in packet.recipient do
 				self:_updateClientPayload(clientPayloads, player, packet, pos)
 			end
-		elseif typeof(packet.recipient) == "Instance" and Context.isPlayer(self._configuration, packet.recipient) then
+		elseif
+			Context.getType(packet.recipient, self._configuration) == "Instance"
+			and Context.isPlayer(self._configuration, packet.recipient)
+		then
 			self:_updateClientPayload(clientPayloads, packet.recipient, packet, pos)
 		else
 			self:_addPacketToPayload(serverPayload, packet, pos)
@@ -242,7 +245,7 @@ function Bridge:send(recipient, identifier, data)
 			return
 		end
 	elseif Context.isServer(self._configuration) then
-		if typeof(recipient) == "table" then
+		if Context.getType(recipient, self._configuration) == "table" then
 			for _, player in recipient do
 				if not Context.isPlayer(self._configuration, player) then
 					warn("Attempt to send a table with a non-player instance as a recipient")
