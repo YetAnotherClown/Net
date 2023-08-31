@@ -297,7 +297,11 @@ function Bridge.new(configuration: { any }?)
 
 		self.remote.OnServerEvent:Connect(processIncoming)
 	elseif Context.isClient(self._configuration) then
-		self.remote = script:WaitForChild(remoteKey)
+		if self._configuration.DevMode and self._configuration.MockRemoteEvent then
+			self.remote = self._configuration.MockRemoteEvent
+		else
+			self.remote = script:WaitForChild(remoteKey)
+		end
 
 		local function processIncoming(package)
 			self:_processIncoming("NET_SERVER", package)
