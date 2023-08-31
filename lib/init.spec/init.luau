@@ -14,6 +14,8 @@ return function()
 		context.server = Net.new({
 			Channel = "ReliableUnordered",
 			Event = "default",
+
+			DevMode = true,
 			MockRemoteEvent = mockRemote,
 			RunContext = "Server",
 		})
@@ -21,6 +23,8 @@ return function()
 		context.client = Net.new({
 			Channel = "ReliableUnordered",
 			Event = "default",
+
+			DevMode = true,
 			MockRemoteEvent = mockRemote,
 			RunContext = "Client",
 		})
