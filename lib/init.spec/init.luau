@@ -7,7 +7,7 @@ local Net = require(Packages.Net)
 local MockRemoteEvent = require(script.mockRemoteEvent)
 
 return function()
-	beforeAll(function(context)
+	beforeEach(function(context)
 		local mockRemote = MockRemoteEvent.new()
 
 		-- Create a new Net Server/Client
