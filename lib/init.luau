@@ -140,7 +140,7 @@ type QueryParams = {
 }
 
 -- Query different Parameter Types
-local parseQueryParams = {
+Net._parseQueryParams = {
 	Instance = function(queryParams: QueryParams, player: Player, configuration: Configuration)
 		-- Player should be a Player
 		if not Context.isPlayer(configuration, player) then
@@ -193,7 +193,7 @@ function Net:query(...: { Players } | Player | Identifier | any)
 
 	-- Parse each appropriate Parameter Type
 	for _, param in { ... } do
-		local parser = parseQueryParams[typeof(param)]
+		local parser = Net._parseQueryParams[typeof(param)]
 		parser(queryParams, param, self._configuration)
 	end
 
@@ -262,7 +262,7 @@ type SendParams = {
 }
 
 -- Send different Parameter Types
-local parseSendParams = {
+Net._parseSendParams = {
 	Instance = function(sendParams: SendParams, player: Player, configuration: Configuration)
 		-- Player should be a Player
 		if not Context.isPlayer(configuration, player) then
@@ -342,7 +342,7 @@ function Net:send(...)
 		end
 
 		-- Parse the SendParams
-		local parser = parseSendParams[typeof(param)]
+		local parser = Net._parseSendParams[typeof(param)]
 		parser(sendParams, param, self._configuration)
 	end
 
