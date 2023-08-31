@@ -15,8 +15,6 @@ return function()
             local identifierFive = newIdentifier("identifierFive", 1)
 
             expect(identifierThree ~= identifierFour).to.equal(true)
-            print(string.unpack("B", identifierThree))
-            print(string.unpack("B", identifierFive))
             expect(identifierThree == identifierFive).to.equal(true)
         end)
 
