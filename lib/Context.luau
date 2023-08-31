@@ -29,7 +29,17 @@ local function isPlayer(configuration, player)
 	end
 end
 
+local function getType(value, configuration)
+	if isPlayer(configuration, value) then
+		return "Instance"
+	end
+
+	return typeof(value)
+end
+
 return {
+	getType = getType,
+
 	isServer = isServer,
 	isClient = isClient,
 

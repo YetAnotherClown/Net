@@ -193,7 +193,7 @@ function Net:query(...: { Players } | Player | Identifier | any)
 
 	-- Parse each appropriate Parameter Type
 	for _, param in { ... } do
-		local parser = Net._parseQueryParams[typeof(param)]
+		local parser = Net._parseQueryParams[Context.getType(param, self._configuration)]
 		parser(queryParams, param, self._configuration)
 	end
 
@@ -269,12 +269,12 @@ Net._parseSendParams = {
 			return
 		end
 
-		if sendParams.recipient and typeof(sendParams.recipient) ~= "table" then
+		if sendParams.recipient and Context.getType(sendParams.recipient, configuration) ~= "table" then
 			-- Combine both Players into a table
 			sendParams.recipient = { sendParams.recipient, player }
-		elseif typeof(sendParams.recipient) == "table" then
+		elseif Context.getType(sendParams.recipient, configuration) == "table" then
 			-- Add the Player to the preexisting table
-			table.insert(sendParams.recipient, player)
+			table.insert(sendParams.recipient :: { Player }, player)
 		else
 			-- Set the recipient as the player
 			sendParams.recipient = player
@@ -291,14 +291,14 @@ Net._parseSendParams = {
 			end
 		end
 
-		if sendParams.recipient and typeof(sendParams.recipient) ~= "table" then
+		if sendParams.recipient and Context.getType(sendParams.recipient, configuration) ~= "table" then
 			-- Add the player to the new table, then set that table as the recipient
-			table.insert(players, sendParams.recipient)
+			table.insert(players, sendParams.recipient :: Player)
 			sendParams.recipient = players
-		elseif typeof(sendParams.recipient) == "table" then
+		elseif Context.getType(sendParams.recipient, configuration) == "table" then
 			-- Combine both tables of Players
 			for _, player in players do
-				table.insert(sendParams.recipient, player)
+				table.insert(sendParams.recipient :: { Player }, player)
 			end
 		else
 			-- Set the Players as the recipient
@@ -342,7 +342,7 @@ function Net:send(...)
 		end
 
 		-- Parse the SendParams
-		local parser = Net._parseSendParams[typeof(param)]
+		local parser = Net._parseSendParams[Context.getType(param, self._configuration)]
 		parser(sendParams, param, self._configuration)
 	end
 
